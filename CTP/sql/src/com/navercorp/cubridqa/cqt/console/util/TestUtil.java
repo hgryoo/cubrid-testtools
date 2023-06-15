@@ -72,6 +72,7 @@ public class TestUtil {
     public static final String RUN_MODE = "run_mode";
 
     public static final String RUN_MODE_SECONDARY = "run_mode_secondary";
+	public static final String SERVER_OUTPUT = "server-output";
 
     public static final String HOLDCAS = "holdcas";
 

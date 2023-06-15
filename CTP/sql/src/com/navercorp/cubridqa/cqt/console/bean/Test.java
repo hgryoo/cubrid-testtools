@@ -92,6 +92,7 @@ public class Test {
     private String reset_scripts = "";
 
     private String autocommit = "";
+    private String serverOutput = "off";
 
     private boolean needSummaryXML = false;
 
@@ -190,6 +191,14 @@ public class Test {
 
     public String getAutocommit() {
         return autocommit;
+    }
+
+    public String getServerOutput() {
+        return serverOutput;
+    }
+
+    public void setServerOutput(String so) {
+        this.serverOutput = so;
     }
 
     public void setAutocommit(String autocommit) {
