@@ -113,7 +113,7 @@ public class CubridUtil {
 		cubridType = cubridType.toUpperCase();
 		if (cubridType.equals("CHAR")) {
 			return Types.CHAR;
-		} else if (cubridType.equals("VARCHAR")) {
+		} else if (cubridType.equals("VARCHAR") || cubridType.equals("CHAR VARYING")) {
 			return Types.VARCHAR;
 		} else if (cubridType.equals("STRING")) {
 			return Types.VARCHAR;
@@ -121,7 +121,7 @@ public class CubridUtil {
 			return Types.CHAR;
 		} else if (cubridType.equals("BIT")) {
 			return Types.BIT;
-		} else if (cubridType.equals("BIT VARYING")) {
+		} else if (cubridType.equals("BIT VARYING") || cubridType.equals("VARBIT")) {
 			return Types.BIT;
 		} else if (cubridType.equals("NUMERIC") || cubridType.equals("DECIMAL")) {
 			return Types.NUMERIC;

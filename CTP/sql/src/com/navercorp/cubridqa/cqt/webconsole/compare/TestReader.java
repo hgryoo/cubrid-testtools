@@ -56,12 +56,17 @@ public class TestReader {
         StringBuilder builder = new StringBuilder();
         do {
             String sql = sqls.get(idx).getScript().trim();
-            idx++;
 
             if (builder.length() > 0) {
                 builder.append("\n");
             }
+            if (sqls.get(idx).getParamLine () != null) {
+                builder.append(sqls.get(idx).getParamLine ());
+                builder.append("\n");
+            }
             builder.append(sql);
+            
+            idx++;
 
             if (sql.startsWith("--") || sql.startsWith("$") || sql.startsWith("autocommit")) {
                 continue;

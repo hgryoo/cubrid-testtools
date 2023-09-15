@@ -57,6 +57,8 @@ public class CaseResult {
 
 	private String result;
 
+	private String rewritten;
+
 	private boolean isSuccessFul = true;
 	
 	private boolean hasCore = false;
@@ -77,6 +79,14 @@ public class CaseResult {
 
 	public void setResult(String result) {
 		this.result = result;
+	}
+
+	public String getRewrittenCase() {
+		return rewritten;
+	}
+
+	public void setRewrittenCase(String rewritten) {
+		this.rewritten = rewritten;
 	}
 
 	public String getResultDir() {

@@ -33,14 +33,22 @@ import java.util.TreeSet;
 
 import com.navercorp.cubridqa.cqt.common.CommonUtils;
 import com.navercorp.cubridqa.cqt.webconsole.compare.Compare;
+import com.navercorp.cubridqa.cqt.webconsole.compare.CompareRewritten;
 
 public class WebModel {
 	public static String SCENARIO_ROOT;
 	String dailyQARoot;
+	boolean rewrittenMode;
 
 	public WebModel(String dailyQARoot) throws IOException {
 		File file = new File(dailyQARoot);
 		this.dailyQARoot = file.getCanonicalPath();
+		this.rewrittenMode = false;
+	}
+
+	public WebModel(String dailyQARoot, boolean mode) throws IOException {
+		this (dailyQARoot);
+		this.rewrittenMode = mode;
 	}
 
 	public String showTopTestList() throws Exception {
@@ -50,8 +58,9 @@ public class WebModel {
 			public int compare(File o1, File o2) {
 				if (o1 == null || o2 == null)
 					return -1;
-				return new Long(new File(o2.getAbsolutePath() + File.separator + "main.info").lastModified()).compareTo(new Long(new File(o1.getAbsolutePath() + File.separator + "main.info")
-						.lastModified()));
+				return new Long(new File(o2.getAbsolutePath() + File.separator + "main.info").lastModified())
+						.compareTo(new Long(new File(o1.getAbsolutePath() + File.separator + "main.info")
+								.lastModified()));
 			}
 		});
 
@@ -76,7 +85,8 @@ public class WebModel {
 		for (File test : fileList) {
 			model = new SummaryModel(test, true);
 			html.append("<tr>");
-			html.append("<td>&nbsp;<a href='show.jsp?p=" + test.getAbsolutePath() + "' target=_blank>" + model.getDispName() + "</a> </td>");
+			html.append("<td>&nbsp;<a href='show.jsp?p=" + test.getAbsolutePath() + "' target=_blank>"
+					+ model.getDispName() + "</a> </td>");
 			html.append("<td align=right>&nbsp;" + model.getMoreData("total") + " </td>");
 			html.append("<td align=right>&nbsp;" + model.getMoreData("success") + " </td>");
 			fail = model.getMoreData("fail");
@@ -85,7 +95,12 @@ public class WebModel {
 				fail = "0";
 				html.append("<td>&nbsp;" + fail + "</td>");
 			} else {
-				html.append("<td align=right>&nbsp;<a href='failure.jsp?p=" + test.getAbsolutePath() + "' target=_blank>" + (warn != null && warn.equals("Y") ? "<img src='image/warn.png' width=11 height=13 border=0/>&nbsp;" : "") + model.getMoreData("fail") + "</a> </td>");
+				html.append(
+						"<td align=right>&nbsp;<a href='failure.jsp?p=" + test.getAbsolutePath() + "' target=_blank>"
+								+ (warn != null && warn.equals("Y")
+										? "<img src='image/warn.png' width=11 height=13 border=0/>&nbsp;"
+										: "")
+								+ model.getMoreData("fail") + "</a> </td>");
 			}
 			html.append("<td  align=right>&nbsp;" + model.getMoreData("totalTime") + " </td>");
 			html.append("<td>&nbsp;" + model.getMoreData("build") + " (" + model.getMoreData("version") + ") </td>");
@@ -144,12 +159,14 @@ public class WebModel {
 			File errFile;
 			for (int i = 0; i < list.size(); i++) {
 				sqlFilename = list.get(i).getAbsolutePath();
-				errFile = new File(sqlFilename.substring(0, sqlFilename.lastIndexOf(".")) + ".err");				
+				errFile = new File(sqlFilename.substring(0, sqlFilename.lastIndexOf(".")) + ".err");
 				testResultRoot = getScheduleFolerName(sqlFilename);
 				label = sqlFilename.substring(sqlFilename.lastIndexOf(testResultRoot) + testResultRoot.length() + 1);
 				label = CommonUtils.replace(label, "\\", "/");
 				link = "compare.jsp?p=" + sqlFilename;
-				html.append("<tr><td width=30>" + (i + 1) + "</td><td><a href=" + link + " target=_blank>" + label + (errFile.exists() ? "&nbsp;<img src='image/warn.png' width=11 height=13 border=0/>" : "") + "</a></td></tr>");
+				html.append("<tr><td width=30>" + (i + 1) + "</td><td><a href=" + link + " target=_blank>" + label
+						+ (errFile.exists() ? "&nbsp;<img src='image/warn.png' width=11 height=13 border=0/>" : "")
+						+ "</a></td></tr>");
 			}
 			html.append("</table>");
 		}
@@ -172,23 +189,48 @@ public class WebModel {
 		String errorFilename = sqlFilename.substring(0, sqlFilename.lastIndexOf(".")) + ".err";
 		String answerFilename = sqlFilename.substring(0, sqlFilename.lastIndexOf(".")) + ".answer";
 
-		String snapshot = resultFilename + "_diff_snapshot";
-		File file = new File(snapshot);
+		// result diff
 		String content;
-		if (file.exists()) {
-			return Util.readFile(snapshot);
+		if (!rewrittenMode) {
+			String snapshot = resultFilename + "_diff_snapshot";
+			File file = new File(snapshot);
+
+			if (file.exists()) {
+				return Util.readFile(snapshot);
+			} else {
+				Compare compare = new Compare(sqlFilename, answerFilename, resultFilename);
+	
+				file = new File(errorFilename);
+				if (file.exists()) {
+					compare.setErrorContent(Util.readFile(errorFilename));
+				}
+				compare.compare();
+	
+				content = compare.getResult();
+				Util.writeFile(snapshot, content);
+			}
 		} else {
-			Compare compare = new Compare(sqlFilename, answerFilename, resultFilename);
-			
-			file = new File(errorFilename);
-			if(file.exists()) {
-				compare.setErrorContent(Util.readFile(errorFilename));
-			}			
-			compare.compare();
-			
-			content = compare.getResult();
-			Util.writeFile(snapshot, content);
+			String snapshot = resultFilename + "_diff_rewritten_snapshot";
+			File file = new File(snapshot);
+
+			if (file.exists()) {
+				return Util.readFile(snapshot);
+			} else {
+				String rewrittenFilename = sqlFilename.substring(0, sqlFilename.lastIndexOf(".")) + ".rewritten";
+				CompareRewritten compare = new CompareRewritten(sqlFilename, rewrittenFilename, answerFilename, resultFilename);
+	
+				file = new File(errorFilename);
+				if (file.exists()) {
+					compare.setErrorContent(Util.readFile(errorFilename));
+				}
+				compare.compare();
+	
+				content = compare.getResult();
+				Util.writeFile(snapshot, content);
+			}
 		}
+
+		// sql diff
 		return content;
 	}
 
@@ -246,12 +288,15 @@ public class WebModel {
 			// System.out.println("subPath:" + subPath);
 
 			if (isDir) {
-				finalPath = CommonUtils.concatFile(CommonUtils.concatFile(absDirName.substring(0, absDirName.indexOf(testRootName)), testRootName), subPath);
+				finalPath = CommonUtils.concatFile(
+						CommonUtils.concatFile(absDirName.substring(0, absDirName.indexOf(testRootName)), testRootName),
+						subPath);
 				result.append("<td><a href='show.jsp?p=" + finalPath + "'>").append(subPath).append("</a></td>");
 				result.append("<td>").append(item.getTotal()).append("</td>");
 				result.append("<td>").append(item.getSucc()).append("</td>");
 				if (item.getFail() > 0) {
-					result.append("<td><a href='failure.jsp?p=" + finalPath + "'>").append(item.getFail()).append("</a></td>");
+					result.append("<td><a href='failure.jsp?p=" + finalPath + "'>").append(item.getFail())
+							.append("</a></td>");
 				} else {
 					result.append("<td>").append(item.getFail()).append("</td>");
 				}
@@ -268,9 +313,11 @@ public class WebModel {
 					result.append("<td><a href='source.jsp?p=" + label + "'>").append(label).append("</a></td>");
 				} else {
 					// sql is nok
-					String fname = item.getCat().substring(CommonUtils.replace(item.getCat(), "\\", "/").lastIndexOf("/") + 1);
+					String fname = item.getCat()
+							.substring(CommonUtils.replace(item.getCat(), "\\", "/").lastIndexOf("/") + 1);
 					fname = folder + fname;
-					result.append("<td><a href='compare.jsp?p=" + fname + "'>").append(item.getCat()).append("</a></td>");
+					result.append("<td><a href='compare.jsp?p=" + fname + "'>").append(item.getCat())
+							.append("</a></td>");
 				}
 				result.append("<td>").append(item.getFlag()).append("</td>");
 				result.append("<td>").append(item.getElapse()).append("</td>");
@@ -298,16 +345,23 @@ public class WebModel {
 
 		int p1 = sqlFilename.lastIndexOf(File.separator + "cases" + File.separator);
 		int p2 = sqlFilename.lastIndexOf(File.separator) + 1;
-		String answerFilename = sqlFilename.substring(0, p1) + File.separator + "answers" + File.separator + sqlFilename.substring(p2, sqlFilename.lastIndexOf(".sql")) + ".answer";
+		String answerFilename = sqlFilename.substring(0, p1) + File.separator + "answers" + File.separator
+				+ sqlFilename.substring(p2, sqlFilename.lastIndexOf(".sql")) + ".answer";
 
 		String resultFilename = sqlFilename.substring(0, sqlFilename.lastIndexOf(".sql")) + ".result";
 
 		// String answerFilename = sqlFilename.substring(0,
 		// sqlFilename.lastIndexOf(".sql")) + ".answer";
 
-		Compare compare = new Compare(sqlFilename, answerFilename, resultFilename);
-		compare.compare();
-
-		return compare.getResult();
+		if (!this.rewrittenMode) {
+			Compare compare = new Compare(sqlFilename, answerFilename, resultFilename);
+			compare.compare();
+			return compare.getResult();
+		} else {
+			String rewrittenFilename = sqlFilename.substring(0, sqlFilename.lastIndexOf(".sql")) + ".rewritten";
+			CompareRewritten compare = new CompareRewritten(sqlFilename, rewrittenFilename, answerFilename, resultFilename);
+			compare.compare();
+			return compare.getResult();
+		}
 	}
 }

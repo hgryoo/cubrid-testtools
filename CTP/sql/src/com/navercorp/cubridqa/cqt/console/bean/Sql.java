@@ -35,6 +35,10 @@ public class Sql {
 
 	private String script;
 
+	private String original = "";
+
+	private String paramLine = null;
+
 	private List<SqlParam> paramList;
 
 	// add query plan for single sql statement
@@ -50,9 +54,10 @@ public class Sql {
 
 	private String connId = "";
 
-	public Sql(String connId, String src, List<SqlParam> paramList, boolean isCall) {
+	public Sql(String connId, String src, String paramLine, List<SqlParam> paramList, boolean isCall) {
 		setConnId(connId);
 		setScript(src);
+		setParamLine(paramLine);
 		setParamList(paramList);
 
 		int type = Sql.TYPE_STMT;
@@ -90,12 +95,28 @@ public class Sql {
 		this.paramList = paramList;
 	}
 
+	public void setParamLine(String line) {
+		this.paramLine = line;
+	}
+
+	public String getParamLine() {
+		return paramLine;
+	}
+
 	public String getScript() {
 		return script;
 	}
 
 	public void setScript(String script) {
 		this.script = script;
+	}
+
+	public String getOrigianl() {
+		return original;
+	}
+
+	public void setOriginal(String script) {
+		this.original = script;
 	}
 
 	public String toString() {

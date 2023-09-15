@@ -24,13 +24,17 @@
  */
 package com.navercorp.cubridqa.cqt.console.bo;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedReader;
+import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.Method;
 import java.sql.Connection;
+import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -594,6 +598,7 @@ public class ConsoleBO extends Executor {
 				saveResults(caseFile);
 				CaseResult temp_caseresult = test.getCaseResultFromMap(caseFile);
 				TestUtil.saveResult(temp_caseresult, test.getCodeset());
+				TestUtil.saveRewriteSQL(temp_caseresult, test.getCodeset());
 			}
 		} catch (Exception e) {
 			LogUtil.log(logId, LogUtil.getExceptionMessage(e));
@@ -626,6 +631,7 @@ public class ConsoleBO extends Executor {
 				fs.setTestResult("fail");
 				caseResult.setSuccessFul(false);
 				TestUtil.saveResult(caseResult, test.getCodeset());
+				TestUtil.saveRewriteSQL(caseResult, test.getCodeset());
 				processMonitor.setFailedFile(processMonitor.getFailedFile() + 1);
 			} else {
 				processMonitor.setSuccessFile(processMonitor.getSuccessFile() + 1);
@@ -928,6 +934,54 @@ public class ConsoleBO extends Executor {
 		return status;
 	}
 
+	private String createRewrittenSQL(Connection conn, CaseResult caseResult, Sql sql) {
+		String script = sql.getScript ();
+		String newScript = null;
+		BufferedReader reader = null;
+		try {
+			DatabaseMetaData meta = conn.getMetaData();
+			script = script.replaceAll("\\R+", " ").trim();
+
+			// pipe plcsql_helper -u dba -q <sql> basic
+			ProcessBuilder pb = new ProcessBuilder("plcsql_helper", "-u",
+					meta.getUserName(), "-q", script, "basic");
+			Process child = pb.start();
+			child.waitFor();
+
+			InputStream in = child.getInputStream();
+			reader = new BufferedReader(new InputStreamReader(in));
+
+			newScript = "";
+			String str = null;
+			try {
+				do {
+					str = reader.readLine();
+					if (str != null) {
+						newScript += str + "\n";
+					}
+				} while (str != null);
+			} catch (IOException e) {
+				// ignore
+			}
+			
+			script = newScript;
+
+			reader.close();
+			in.close();
+		} catch (Exception e) {
+			// e.printStackTrace();
+		} finally {
+			if (reader != null) {
+                try {
+                    reader.close();
+                } catch (IOException e2) {
+                }
+			}
+		}
+
+		return script;
+	}
+
 	/**
 	 * execute the sql test .
 	 * 
@@ -945,8 +999,9 @@ public class ConsoleBO extends Executor {
 		}
 
 		String caseFile = caseResult.getCaseFile();
+		StringBuilder rewritten = new StringBuilder ();
 		StringBuilder result = new StringBuilder();
-		List<Sql> sqlList = SQLParser.parseSqlFile(caseFile, test.getCodeset(), test.isNeedDebugHint ());
+		List<Sql> sqlList = SQLParser.parseSqlFile(caseFile, test.getCodeset(), test.isNeedDebugHint());
 		if (sqlList == null) {
 			return null;
 		}
@@ -1004,10 +1059,27 @@ public class ConsoleBO extends Executor {
 					}
 
 					String script = sql.getScript();
+
 					cubridConnection.isAvlible();
 					Connection conn = cubridConnection.getConn();
 					ConnList.add(conn);
 
+					if (sql.getType() == Sql.TYPE_STMT) {
+						String forTest = script.toUpperCase();
+						if (forTest.startsWith("SELECT")) {
+							// Query
+							String newScript = createRewrittenSQL (conn, caseResult, sql);
+							sql.setOriginal(script);
+							sql.setScript(newScript);
+						}
+						else if (forTest.startsWith("INSERT") || forTest.startsWith("DELETE") || forTest.startsWith("MERGE") || forTest.startsWith("UPDATE")) {
+							// DML
+							// createRewrittenSQL (conn, caseResult, sql);
+							// TestUtil.saveRewriteSQL(caseResult, sql.getScript());
+						}
+					}
+					rewritten.append (sql.getScript());
+					rewritten.append (System.getProperty("line.separator"));
 					// ===============2010-10-20==========================
 					// int pos = script.indexOf("autocommit ");
 					// if (pos != -1) {
@@ -1078,7 +1150,7 @@ public class ConsoleBO extends Executor {
 							this.onMessage(message);
 							test.setServerOutput("on");
 							// TODO: DBMS_OUTPUT.enable ()
-							Sql enableSql = new Sql(connId, "CALL enable(20000)", null, true); // TODO: set
+							Sql enableSql = new Sql(connId, "CALL enable(20000)", null, null, true); // TODO: set
 																								// size of
 																								// enable
 							dao.execute(conn, enableSql, false);
@@ -1093,7 +1165,7 @@ public class ConsoleBO extends Executor {
 
 							test.setServerOutput("off");
 							// TODO: DBMS_OUTPUT.disable()
-							Sql disableSql = new Sql(connId, "CALL disable()", null, true);
+							Sql disableSql = new Sql(connId, "CALL disable()", null, null, true);
 							dao.execute(conn, disableSql, false);
 						} catch (Exception e) {
 							String message = "Exception: the current version can't support DBMS_OUTPUT!";
@@ -1129,6 +1201,7 @@ public class ConsoleBO extends Executor {
 			} finally {
 				if (i == 0) {
 					caseResult.setResult(result.toString());
+					caseResult.setRewrittenCase(rewritten.toString());
 					caseResult.setSiteRunTimes(1);
 				}
 			}
@@ -1348,7 +1421,7 @@ public class ConsoleBO extends Executor {
 			}
 			String caseFile = caseResult.getCaseFile();
 			StringBuilder result = new StringBuilder();
-			List<Sql> sqlList = SQLParser.parseSqlFile(caseFile, test.getCodeset(), test.isNeedDebugHint ());
+			List<Sql> sqlList = SQLParser.parseSqlFile(caseFile, test.getCodeset(), test.isNeedDebugHint());
 
 			String dbId = test.getDbId();
 			String connId = test.getConnId();
@@ -1435,7 +1508,7 @@ public class ConsoleBO extends Executor {
 							String message = "@" + test.getConnId() + ": server output " + isServerOutputOn;
 							bo.onMessage(message);
 
-							Sql enableSql = new Sql(connId, "CALL DBMS_OUTPUT.enable(20000)", null, true); // TODO: set
+							Sql enableSql = new Sql(connId, "CALL DBMS_OUTPUT.enable(20000)", null, null, true); // TODO: set
 																											// size of
 																											// enable
 							dao.execute(conn, enableSql, false);
@@ -1447,7 +1520,7 @@ public class ConsoleBO extends Executor {
 						try {
 							String message = "@" + test.getConnId() + ": server output " + isServerOutputOff;
 							bo.onMessage(message);
-							Sql disableSql = new Sql(connId, "CALL DBMS_OUTPUT.disable()", null, true);
+							Sql disableSql = new Sql(connId, "CALL DBMS_OUTPUT.disable()", null, null, true);
 							dao.execute(conn, disableSql, false);
 						} catch (Exception e) {
 							String message = "Exception: the current version can't support DBMS_OUTPUT!";

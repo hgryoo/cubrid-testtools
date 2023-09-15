@@ -127,7 +127,8 @@ public class TestUtil {
 
 	public static String getCharsetFile(String fileName) {
 		String fName = "";
-		fName = EnvGetter.getenv("CTP_HOME") + File.separator + CONFIG_NAME + File.separator + TEST_CONFIG + File.separator + fileName;
+		fName = EnvGetter.getenv("CTP_HOME") + File.separator + CONFIG_NAME + File.separator + TEST_CONFIG
+				+ File.separator + fileName;
 		return fName;
 	}
 
@@ -217,7 +218,8 @@ public class TestUtil {
 
 	public static String getResultDir(String resID) {
 		String res_dir = "";
-		res_dir = EnvGetter.getenv("CTP_HOME") + RESULT + getYearDirName() + File.separator + getMonthDirName() + File.separator + resID;
+		res_dir = EnvGetter.getenv("CTP_HOME") + RESULT + getYearDirName() + File.separator + getMonthDirName()
+				+ File.separator + resID;
 
 		res_dir = StringUtil.replaceSlashBasedSystem(res_dir);
 		return res_dir;
@@ -261,7 +263,8 @@ public class TestUtil {
 		String scenarioRoot = test.getScenarioRootPath();
 		int rootLength = scenarioRoot.length();
 		String scenarioSuffer = caseFile.substring(rootLength);
-		ret = StringUtil.replaceSlashBasedSystem(test.getResult_dir() + File.separator + test.getTestType() + File.separator + scenarioSuffer);
+		ret = StringUtil.replaceSlashBasedSystem(
+				test.getResult_dir() + File.separator + test.getTestType() + File.separator + scenarioSuffer);
 
 		int pos = ret.lastIndexOf(File.separator + CASEFLAG);
 		if (pos != -1) {
@@ -330,47 +333,51 @@ public class TestUtil {
 		String[] ret = new String[] { TestUtil.ScenarioTypes };
 		return ret;
 	}
-	
-	public static List<String> getExcludedFileList(String file){
+
+	public static List<String> getExcludedFileList(String file) {
 		List<String> ret = new ArrayList<String>();
-		if(file == null){
+		if (file == null) {
 			return ret;
 		}
-		
+
 		try {
 			ret = CommonUtils.getLineList(file);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		
+
 		return ret;
 	}
-	
+
 	/*
-	 * filter out the excluded case file 
+	 * filter out the excluded case file
+	 * 
 	 * @param fileList
+	 * 
 	 * @param filter file
+	 * 
 	 * @param scenarioRootPath case root path
 	 */
-	public static void filterExcludedCaseFile(List<String> fileList, String filter, String scenarioRootPath){
-		if (scenarioRootPath == null ||filter == null || fileList == null) {
+	public static void filterExcludedCaseFile(List<String> fileList, String filter, String scenarioRootPath) {
+		if (scenarioRootPath == null || filter == null || fileList == null) {
 			return;
 		}
-		
+
 		Iterator<String> sListIterator = fileList.iterator();
 		List<String> excludeFileList = TestUtil.getExcludedFileList(filter);
-		if(excludeFileList == null || excludeFileList.size() == 0) return;
-		
-		while(sListIterator.hasNext()){  
-		    String caseFile = sListIterator.next();  
-		    String caseRalativePath = caseFile.substring(scenarioRootPath.length());
-		    for(int j=0; j<excludeFileList.size();j++){
-				if(CommonUtils.containPath(caseRalativePath, excludeFileList.get(j).trim())){
-					sListIterator.remove(); 
+		if (excludeFileList == null || excludeFileList.size() == 0)
+			return;
+
+		while (sListIterator.hasNext()) {
+			String caseFile = sListIterator.next();
+			String caseRalativePath = caseFile.substring(scenarioRootPath.length());
+			for (int j = 0; j < excludeFileList.size(); j++) {
+				if (CommonUtils.containPath(caseRalativePath, excludeFileList.get(j).trim())) {
+					sListIterator.remove();
 					break;
 				}
 			}
-		} 
+		}
 	}
 
 	/**
@@ -382,13 +389,14 @@ public class TestUtil {
 	 * @param postFixes
 	 * @throws Exception
 	 */
-	public static void getCaseFiles(Test test, String filePath, List<String> fileList, String[] postFixes) throws Exception {
+	public static void getCaseFiles(Test test, String filePath, List<String> fileList, String[] postFixes)
+			throws Exception {
 		if (filePath == null || postFixes == null || fileList == null) {
 			return;
 		}
 
 		String localPath = StringUtil.replaceSlashBasedSystem(filePath);
-		
+
 		File dir = new File(localPath);
 		if (!dir.exists()) {
 			return;
@@ -433,8 +441,9 @@ public class TestUtil {
 			for (int i = 0; i < files.length; i++) {
 				String file = dirPath + separator + files[i];
 				File child = new File(file);
-				//System.out.println("child.getName: " + child.getName());
-				if (child.isDirectory() && (!("common".equals(child.getName()) || getAnswer4SQLAndOther(filePath).equals(child.getName())))) {
+				// System.out.println("child.getName: " + child.getName());
+				if (child.isDirectory() && (!("common".equals(child.getName())
+						|| getAnswer4SQLAndOther(filePath).equals(child.getName())))) {
 					getCaseFiles(test, file, fileList, postFixes);
 				} else {
 					for (int k = 0; k < postFixes.length; k++) {
@@ -598,7 +607,8 @@ public class TestUtil {
 				SummaryInfo parent = summaryInfo.getParent();
 				summaryInfo.setParent(null);
 				String testType = test.getTestType();
-				if (testType.equalsIgnoreCase(summaryInfo.getCatPath()) && !testType.equalsIgnoreCase(test.getTestTypeAlias())) {
+				if (testType.equalsIgnoreCase(summaryInfo.getCatPath())
+						&& !testType.equalsIgnoreCase(test.getTestTypeAlias())) {
 					summaryInfo.setCatPath(test.getTestTypeAlias());
 				}
 				String xml = XstreamHelper.toXml(summaryInfo);
@@ -619,7 +629,8 @@ public class TestUtil {
 
 	public static void saveSummaryMainInfo(Test test, Summary summary) {
 		String collect_info = "";
-		collect_info += "build:" + PropertiesUtil.getValue("dbversion") + "." + PropertiesUtil.getValue("dbbuildnumber") + System.getProperty("line.separator");
+		collect_info += "build:" + PropertiesUtil.getValue("dbversion") + "." + PropertiesUtil.getValue("dbbuildnumber")
+				+ System.getProperty("line.separator");
 		collect_info += "version:" + test.getTestBit() + System.getProperty("line.separator");
 		collect_info += "os:" + SystemUtil.getOS() + System.getProperty("line.separator");
 		collect_info += "category:" + test.getTestTypeAlias() + System.getProperty("line.separator");
@@ -694,13 +705,29 @@ public class TestUtil {
 		}
 	}
 
+	public static void saveRewriteSQL(CaseResult caseResult, String charset) {
+		if (!caseResult.isSuccessFul()) {
+			String rewrittenFile = caseResult.getResultDir() + "/" + caseResult.getCaseName() + ".rewritten";
+			if (caseResult.getType() == CaseResult.TYPE_SQL) {
+				FileUtil.writeToFile(rewrittenFile, caseResult.getRewrittenCase(), charset);
+			} else {
+				String tempRewrittenFile = caseResult.getCaseDir() + "/" + caseResult.getCaseName() + ".rewritten";
+				FileUtil.copyFile(tempRewrittenFile, rewrittenFile);
+			}
+		}
+	}
+
 	public static void copyCaseAnswerFile(CaseResult caseResult) {
 		if (!caseResult.isSuccessFul()) {
 			String targetSqlFile = caseResult.getResultDir() + "/" + caseResult.getCaseName() + ".sql";
 			String targetAnswerFile = caseResult.getResultDir() + "/" + caseResult.getCaseName() + ".answer";
+
+			String sourcdeRewrittenFile = caseResult.getCaseDir() + "/" + caseResult.getCaseName() + ".rewritten";
+			String targetRewrittenFile = caseResult.getResultDir() + "/" + caseResult.getCaseName() + ".rewritten";
 			if (caseResult.getType() == CaseResult.TYPE_SQL) {
 				FileUtil.writeSQLFileIntoResultFolder(caseResult.getCaseFile(), targetSqlFile);
 				FileUtil.writeSQLFileIntoResultFolder(caseResult.getAnswerFile(), targetAnswerFile);
+				FileUtil.writeSQLFileIntoResultFolder(sourcdeRewrittenFile, targetRewrittenFile);
 			}
 		}
 	}
@@ -882,7 +909,8 @@ public class TestUtil {
 	public static String getCaseSummary(String summaryFile) {
 		StringBuilder sb = new StringBuilder();
 		try {
-			BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(new File(summaryFile)), "UTF-8"));
+			BufferedReader reader = new BufferedReader(
+					new InputStreamReader(new FileInputStream(new File(summaryFile)), "UTF-8"));
 			int lineNum = 0;
 			String line = reader.readLine();
 			while (line != null) {
@@ -960,7 +988,8 @@ public class TestUtil {
 		if (position == -1) {
 			return false;
 		}
-		SystemModel systemModel = (SystemModel) XstreamHelper.fromXml(EnvGetter.getenv("CTP_HOME") + File.separator + "sql/configuration/System.xml");
+		SystemModel systemModel = (SystemModel) XstreamHelper
+				.fromXml(EnvGetter.getenv("CTP_HOME") + File.separator + "sql/configuration/System.xml");
 		if (systemModel.isQueryPlan()) {
 			flag = true;
 		} else {

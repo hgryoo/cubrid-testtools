@@ -56,6 +56,7 @@ public class SQLParser {
             int lineCount = 1;
 
             StringBuilder ret = new StringBuilder();
+            String paramLine = null;
             List<SqlParam> paramList = null;
             String connId = "";
             boolean isCall = false;
@@ -77,13 +78,16 @@ public class SQLParser {
                         String controlCmd = getControlCommand(line);
                         if (controlCmd != null) {
                             // control command : either hodcas or server-output
-                            Sql sql = new Sql("", controlCmd, null, false);
+                            Sql sql = new Sql("", controlCmd, null, null, false);
                             list.add(sql);
                         }
                     }
                 } else if (line.startsWith("$")) {
                     // parameters
                     paramList = getParamList(line, sqlFile);
+                    if (paramList.size() > 0) {
+                        paramLine = line;
+                    }
                 } else {
                     // statement
 
@@ -111,7 +115,7 @@ public class SQLParser {
                         isCall = isCall(line);
 
                         // new sql
-                        Sql sql = new Sql(connId, ret.toString(), paramList, isCall);
+                        Sql sql = new Sql(connId, ret.toString(), paramLine, paramList, isCall);
                         sql.setQueryplan(isQueryplan);
                         list.add(sql);
 
@@ -119,6 +123,7 @@ public class SQLParser {
                         isNewStatement = true;
                         isQueryplan = false;
                         ret.setLength(0);
+                        paramLine = null;
                         paramList = null;
                         isCall = false;
                         connId = "";

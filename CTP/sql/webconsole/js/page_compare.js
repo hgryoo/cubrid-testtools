@@ -32,6 +32,11 @@ $(document).ready(function(){
 	  paste_cont = $('#main_table tr:gt(0) td:nth-child(2)').text();
 	  window.open("win_copy.jsp", "_win_copy");
   });
-  
+
+  $("#btn_rewritten").bind("click", function(){
+	paste_cont = $('#main_table tr:gt(0) td:nth-child(3)').text();
+	window.open("win_copy.jsp", "_win_copy");
+  });
+
 });
 
