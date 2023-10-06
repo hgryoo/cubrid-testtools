@@ -25,7 +25,6 @@
  */
 package com.navercorp.cubridqa.cqt.console.util;
 
-
 public class SystemConst {
     public static final String EXPECT_HEAD = "#!/usr/bin/expect -f\r";
     public static final String LINE_SEPERATOR = System.getProperty("line.separator");

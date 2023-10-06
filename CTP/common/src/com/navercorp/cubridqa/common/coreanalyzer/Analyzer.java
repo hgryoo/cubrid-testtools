@@ -1,331 +1,346 @@
 /**
  * Copyright (c) 2016, Search Solution Corporation. All rights reserved.
-
- * 
- * Redistribution and use in source and binary forms, with or without 
- * modification, are permitted provided that the following conditions are met:
- * 
- *   * Redistributions of source code must retain the above copyright notice, 
- *     this list of conditions and the following disclaimer.
- * 
- *   * Redistributions in binary form must reproduce the above copyright 
- *     notice, this list of conditions and the following disclaimer in 
- *     the documentation and/or other materials provided with the distribution.
- * 
- *   * Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products 
- *     derived from this software without specific prior written permission.
- * 
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, 
- * INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE 
- * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, 
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR 
- * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
- * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE 
- * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
+ *
+ * <p>Redistribution and use in source and binary forms, with or without modification, are permitted
+ * provided that the following conditions are met:
+ *
+ * <p>* Redistributions of source code must retain the above copyright notice, this list of
+ * conditions and the following disclaimer.
+ *
+ * <p>* Redistributions in binary form must reproduce the above copyright notice, this list of
+ * conditions and the following disclaimer in the documentation and/or other materials provided with
+ * the distribution.
+ *
+ * <p>* Neither the name of the copyright holder nor the names of its contributors may be used to
+ * endorse or promote products derived from this software without specific prior written permission.
+ *
+ * <p>THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR
+ * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
+ * FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY
+ * WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 package com.navercorp.cubridqa.common.coreanalyzer;
 
+import com.navercorp.cubridqa.common.CommonUtils;
 import java.io.File;
 import java.util.ArrayList;
 
-import com.navercorp.cubridqa.common.CommonUtils;
-
 public class Analyzer {
 
-	private String coreFilename;
-	private String coreName;
+    private String coreFilename;
+    private String coreName;
 
-	private String envHOME;
-	private String envJAVA_HOME;
+    private String envHOME;
+    private String envJAVA_HOME;
 
-	private String detailStack;
-	private String digestStack;
-	private String processName;
-	private String summary;
+    private String detailStack;
+    private String digestStack;
+    private String processName;
+    private String summary;
 
-	public Analyzer(String coreFilename) {
-		this.coreFilename = coreFilename;
-		this.coreName = new File(coreFilename).getName();
+    public Analyzer(String coreFilename) {
+        this.coreFilename = coreFilename;
+        this.coreName = new File(coreFilename).getName();
 
-		String cmd;
-		String result;
+        String cmd;
+        String result;
 
-		cmd = "echo $HOME";
-		result = LocalInvoker.exec(cmd);
-		this.envHOME = result.trim();
+        cmd = "echo $HOME";
+        result = LocalInvoker.exec(cmd);
+        this.envHOME = result.trim();
 
-		cmd = "echo $JAVA_HOME";
-		result = LocalInvoker.exec(cmd);
-		this.envJAVA_HOME = result.trim();
-	}
+        cmd = "echo $JAVA_HOME";
+        result = LocalInvoker.exec(cmd);
+        this.envJAVA_HOME = result.trim();
+    }
 
-	public void showCoreInformation() {
-		System.out.println("=================================== CORE ANALYZER ===================================");
-		System.out.println("\tCORE FILE   : [" + coreFilename + "]");
-		System.out.println("\tHOME        : " + "[" + this.envHOME + "]");
-		System.out.println("\tJAVA_HOME   : " + "[" + this.envJAVA_HOME + "]");
-		System.out.println("\tPROCESS NAME: " + "[" + processName + "]");
-		System.out.println("\tSUMMARY     : " + "[" + this.summary + "]");
-		System.out.println("\tDETAIL STACK:");
-		System.out.println("--------------------------------------------------------");
-		System.out.println(this.detailStack);
-		System.out.println("--------------------------------------------------------");
-		System.out.println("\tSTACK DIGEST:");
-		System.out.println(this.digestStack);
-		System.out.println("<END>");
-		System.out.println();
-	}
+    public void showCoreInformation() {
+        System.out.println(
+                "=================================== CORE ANALYZER ===================================");
+        System.out.println("\tCORE FILE   : [" + coreFilename + "]");
+        System.out.println("\tHOME        : " + "[" + this.envHOME + "]");
+        System.out.println("\tJAVA_HOME   : " + "[" + this.envJAVA_HOME + "]");
+        System.out.println("\tPROCESS NAME: " + "[" + processName + "]");
+        System.out.println("\tSUMMARY     : " + "[" + this.summary + "]");
+        System.out.println("\tDETAIL STACK:");
+        System.out.println("--------------------------------------------------------");
+        System.out.println(this.detailStack);
+        System.out.println("--------------------------------------------------------");
+        System.out.println("\tSTACK DIGEST:");
+        System.out.println(this.digestStack);
+        System.out.println("<END>");
+        System.out.println();
+    }
 
-	public String[] getCoreFullStack() {
-		String[] result = new String[3];
-		result[0] = this.summary;
-		result[1] = this.detailStack;
-		result[2] = this.processName;
-		return result;
-	}
+    public String[] getCoreFullStack() {
+        String[] result = new String[3];
+        result[0] = this.summary;
+        result[1] = this.detailStack;
+        result[2] = this.processName;
+        return result;
+    }
 
-	public void analyze(boolean fullStack) throws Exception {
+    public void analyze(boolean fullStack) throws Exception {
 
-		String cmd;
-		String result;
+        String cmd;
+        String result;
 
-		
-		String processName = null;
-		
-		try{
-			cmd = "file " + coreFilename;
-			result = LocalInvoker.exec(cmd);
-			processName = extractCoreProcessNameFromFile(result);
-		} catch(Exception e) {			
-		}
+        String processName = null;
 
-		if (processName == null) {
-			try {
-				cmd = "gdb " + coreFilename + " -ex 'quit' 2>/dev/null | grep 'Core was generated by'";
-				result = LocalInvoker.exec(cmd);
-				processName = extractCoreProcessNameFromGdb(result);
-			} catch (Exception e) {
-			}
-		}
-		
-		if (processName == null) {
-			throw new Exception("Fail to extract process name from " + coreName);
-		}
+        try {
+            cmd = "file " + coreFilename;
+            result = LocalInvoker.exec(cmd);
+            processName = extractCoreProcessNameFromFile(result);
+        } catch (Exception e) {
+        }
 
-		this.processName = processName;
+        if (processName == null) {
+            try {
+                cmd =
+                        "gdb "
+                                + coreFilename
+                                + " -ex 'quit' 2>/dev/null | grep 'Core was generated by'";
+                result = LocalInvoker.exec(cmd);
+                processName = extractCoreProcessNameFromGdb(result);
+            } catch (Exception e) {
+            }
+        }
 
-		cmd = "gdb `which " + processName + "` " + coreFilename + " <<EOF" + Constants.LINE_SEPARATOR;
-		if (fullStack) {
-			cmd += "bt full" + Constants.LINE_SEPARATOR;
-		} else {
-			cmd += "where" + Constants.LINE_SEPARATOR;
-		}
-		cmd += "EOF";
+        if (processName == null) {
+            throw new Exception("Fail to extract process name from " + coreName);
+        }
 
-		result = LocalInvoker.exec(cmd);
+        this.processName = processName;
 
-		this.detailStack = extractCoreStack(result).trim();
-		String[] info = extractCoreStackDigest(this.detailStack);
-		this.summary = info[0];
-		this.digestStack = info[1];
-	}
+        cmd =
+                "gdb `which "
+                        + processName
+                        + "` "
+                        + coreFilename
+                        + " <<EOF"
+                        + Constants.LINE_SEPARATOR;
+        if (fullStack) {
+            cmd += "bt full" + Constants.LINE_SEPARATOR;
+        } else {
+            cmd += "where" + Constants.LINE_SEPARATOR;
+        }
+        cmd += "EOF";
 
-	private static String extractCoreProcessNameFromFile(String desc) {
-		// core.27788: ELF 64-bit LSB core file AMD x86-64, version 1 (SYSV),
-		// SVR4-style, from 'cub_server'
-		int p1 = desc.indexOf("from '");
+        result = LocalInvoker.exec(cmd);
 
-		if (p1 == -1) {
-			return null;
-		}
+        this.detailStack = extractCoreStack(result).trim();
+        String[] info = extractCoreStackDigest(this.detailStack);
+        this.summary = info[0];
+        this.digestStack = info[1];
+    }
 
-		int p2 = desc.indexOf("'", p1 + 6);
+    private static String extractCoreProcessNameFromFile(String desc) {
+        // core.27788: ELF 64-bit LSB core file AMD x86-64, version 1 (SYSV),
+        // SVR4-style, from 'cub_server'
+        int p1 = desc.indexOf("from '");
 
-		String keywords = (p2 == -1) ? desc.substring(p1 + 6) : desc.substring(p1 + 6, p2);
+        if (p1 == -1) {
+            return null;
+        }
 
-		return extractCoreProcessName(keywords);
-	}
-	
-	private static String extractCoreProcessNameFromGdb(String desc) {
-		// Core was generated by `cub_server testdb'.
-		int p1 = desc.indexOf("by `");
+        int p2 = desc.indexOf("'", p1 + 6);
 
-		if (p1 == -1) {
-			return null;
-		}
+        String keywords = (p2 == -1) ? desc.substring(p1 + 6) : desc.substring(p1 + 6, p2);
 
-		int p2 = desc.indexOf("'", p1 + 4);
+        return extractCoreProcessName(keywords);
+    }
 
-		String keywords = (p2 == -1) ? desc.substring(p1 + 4) : desc.substring(p1 + 4, p2);
+    private static String extractCoreProcessNameFromGdb(String desc) {
+        // Core was generated by `cub_server testdb'.
+        int p1 = desc.indexOf("by `");
 
-		return extractCoreProcessName(keywords);
-	}
-	
-	private static String extractCoreProcessName(String keywords) {
-		if (keywords.indexOf("cub_cas") != -1) {
-			return "cub_cas";
-		} else if (keywords.indexOf("cub_server") != -1) {
-			return "cub_server";
-		} else if (keywords.indexOf("cubrid ") != -1) {
-			if ((keywords.indexOf(" service") != -1) || (keywords.indexOf(" server") != -1) || (keywords.indexOf(" broker") != -1) || (keywords.indexOf(" manager") != -1)
-					|| (keywords.indexOf(" heartbeat") != -1) || (keywords.indexOf(" hb") != -1)) {
-				return "cubrid";
-			} else {
-				return "cub_admin";
-			}
+        if (p1 == -1) {
+            return null;
+        }
 
-		} else if (keywords.indexOf("csql") != -1) {
-			return "csql";
-		} else {
-			return keywords.split(" ")[0].trim();
-		}
-	}
+        int p2 = desc.indexOf("'", p1 + 4);
 
-	private String extractCoreStack(String desc) {
-		String searchKey = "(gdb)";
-		int p1 = desc.lastIndexOf(searchKey);
-		int p2 = desc.lastIndexOf(searchKey, p1 - 1);
-		if (p1 == -1 || p2 == -1 || p1 <= p2) {
-			return null;
-		}
+        String keywords = (p2 == -1) ? desc.substring(p1 + 4) : desc.substring(p1 + 4, p2);
 
-		String stack = desc.substring(p2 + searchKey.length(), p1).trim();
-		return stack;
-	}
+        return extractCoreProcessName(keywords);
+    }
 
-	public static String[] extractCoreStackDigest(String detailStack) throws Exception {
-		String[] result = new String[2];
+    private static String extractCoreProcessName(String keywords) {
+        if (keywords.indexOf("cub_cas") != -1) {
+            return "cub_cas";
+        } else if (keywords.indexOf("cub_server") != -1) {
+            return "cub_server";
+        } else if (keywords.indexOf("cubrid ") != -1) {
+            if ((keywords.indexOf(" service") != -1)
+                    || (keywords.indexOf(" server") != -1)
+                    || (keywords.indexOf(" broker") != -1)
+                    || (keywords.indexOf(" manager") != -1)
+                    || (keywords.indexOf(" heartbeat") != -1)
+                    || (keywords.indexOf(" hb") != -1)) {
+                return "cubrid";
+            } else {
+                return "cub_admin";
+            }
 
-		ArrayList<StackItem> itemList = extractStackItems(detailStack);
-		StringBuilder digests = new StringBuilder();
-		String excludedMethods = ",er_log,er_set_internal,abort_handler,er_set,";
-		for (StackItem s : itemList) {
-			digests.append(s.getDigest()).append("\n");
-			if (CommonUtils.isEmpty(result[0])) {
-				if (s.getOriFileCodes().startsWith("src/")) {
-					if (excludedMethods.indexOf("," + s.getMethodCodes().trim() + ",") == -1) {
-						result[0] = "Core dumped in " + s.getMethodCodes() + " at " + s.getOriFileCodes();
-					}
-				}
-			}
-		}
+        } else if (keywords.indexOf("csql") != -1) {
+            return "csql";
+        } else {
+            return keywords.split(" ")[0].trim();
+        }
+    }
 
-		result[1] = digests.toString().trim();
-		return result;
-	}
+    private String extractCoreStack(String desc) {
+        String searchKey = "(gdb)";
+        int p1 = desc.lastIndexOf(searchKey);
+        int p2 = desc.lastIndexOf(searchKey, p1 - 1);
+        if (p1 == -1 || p2 == -1 || p1 <= p2) {
+            return null;
+        }
 
-	private static ArrayList<StackItem> extractStackItems(String detailStack) throws Exception {
-		ArrayList<StackItem> list = new ArrayList<StackItem>();
+        String stack = desc.substring(p2 + searchKey.length(), p1).trim();
+        return stack;
+    }
 
-		int index = 0;
-		int itemStartPos = 0, itemEndPos = 0;
+    public static String[] extractCoreStackDigest(String detailStack) throws Exception {
+        String[] result = new String[2];
 
-		String itemText;
-		String methodCodes, oriFileCodes, fileCodes;
-		StackItem item;
-		String[] arr;
-		while (true) {
-			itemStartPos = detailStack.indexOf("#" + index, itemEndPos);
-			if (itemStartPos == -1) {
-				break;
-			}
+        ArrayList<StackItem> itemList = extractStackItems(detailStack);
+        StringBuilder digests = new StringBuilder();
+        String excludedMethods = ",er_log,er_set_internal,abort_handler,er_set,";
+        for (StackItem s : itemList) {
+            digests.append(s.getDigest()).append("\n");
+            if (CommonUtils.isEmpty(result[0])) {
+                if (s.getOriFileCodes().startsWith("src/")) {
+                    if (excludedMethods.indexOf("," + s.getMethodCodes().trim() + ",") == -1) {
+                        result[0] =
+                                "Core dumped in "
+                                        + s.getMethodCodes()
+                                        + " at "
+                                        + s.getOriFileCodes();
+                    }
+                }
+            }
+        }
 
-			itemEndPos = detailStack.indexOf("#" + (index + 1), itemStartPos);
-			if (itemEndPos == -1) {
-				itemEndPos = detailStack.length();
-			}
+        result[1] = digests.toString().trim();
+        return result;
+    }
 
-			itemText = detailStack.substring(itemStartPos, itemEndPos).trim();
-			itemText = CommonUtil.replace(itemText, "\t", " ");
-			itemText = CommonUtil.replace(itemText, "\n", " ");
-			itemText = CommonUtil.replace(itemText, "\r", " ");
-			itemText = CommonUtil.removeMoreBlanks(itemText).trim();
+    private static ArrayList<StackItem> extractStackItems(String detailStack) throws Exception {
+        ArrayList<StackItem> list = new ArrayList<StackItem>();
 
-			arr = itemText.split(" ");
+        int index = 0;
+        int itemStartPos = 0, itemEndPos = 0;
 
-			if (arr != null && arr.length > 0) {
+        String itemText;
+        String methodCodes, oriFileCodes, fileCodes;
+        StackItem item;
+        String[] arr;
+        while (true) {
+            itemStartPos = detailStack.indexOf("#" + index, itemEndPos);
+            if (itemStartPos == -1) {
+                break;
+            }
 
-				if (arr[1].startsWith("0x") == false) {
-					methodCodes = arr[1];
-				} else {
-					methodCodes = arr[3];
-				}
+            itemEndPos = detailStack.indexOf("#" + (index + 1), itemStartPos);
+            if (itemEndPos == -1) {
+                itemEndPos = detailStack.length();
+            }
 
-				int prefixIndexForFileCodes = getFileCodesPrefixIndex(arr);
-				if (prefixIndexForFileCodes != -1) {
-					oriFileCodes = arr[prefixIndexForFileCodes + 1];
-				} else {
-					oriFileCodes = "";
-				}
+            itemText = detailStack.substring(itemStartPos, itemEndPos).trim();
+            itemText = CommonUtil.replace(itemText, "\t", " ");
+            itemText = CommonUtil.replace(itemText, "\n", " ");
+            itemText = CommonUtil.replace(itemText, "\r", " ");
+            itemText = CommonUtil.removeMoreBlanks(itemText).trim();
 
-				methodCodes = refineMethodCodes(methodCodes);
-				fileCodes = refineFileCodes(oriFileCodes);
-				int p = oriFileCodes.lastIndexOf("src/");
-				if (p != -1) {
-					oriFileCodes = oriFileCodes.substring(p);
-				}
-				item = new StackItem(index, methodCodes, fileCodes, oriFileCodes);
-				list.add(item);
-			}
+            arr = itemText.split(" ");
 
-			index++;
-		}
+            if (arr != null && arr.length > 0) {
 
-		return list;
-	}
+                if (arr[1].startsWith("0x") == false) {
+                    methodCodes = arr[1];
+                } else {
+                    methodCodes = arr[3];
+                }
 
-	private static int getFileCodesPrefixIndex(String[] arr) {
-		String s;
-		for (int i = 0; i < arr.length; i++) {
-			s = arr[i].trim();
-			if (s.equals("at") || s.equals("from")) {
-				return i;
-			}
-		}
-		return -1;
-	}
+                int prefixIndexForFileCodes = getFileCodesPrefixIndex(arr);
+                if (prefixIndexForFileCodes != -1) {
+                    oriFileCodes = arr[prefixIndexForFileCodes + 1];
+                } else {
+                    oriFileCodes = "";
+                }
 
-	private static String refineMethodCodes(String desc) {
-		return desc;
+                methodCodes = refineMethodCodes(methodCodes);
+                fileCodes = refineFileCodes(oriFileCodes);
+                int p = oriFileCodes.lastIndexOf("src/");
+                if (p != -1) {
+                    oriFileCodes = oriFileCodes.substring(p);
+                }
+                item = new StackItem(index, methodCodes, fileCodes, oriFileCodes);
+                list.add(item);
+            }
 
-	}
+            index++;
+        }
 
-	private static String refineFileCodes(String desc) {
-		String result;
-		int p = desc.lastIndexOf(":");
-		if (p == -1) {
-			result = desc;
-		} else {
-			result = desc.substring(0, p);
-		}
+        return list;
+    }
 
-		result = result.trim();
-		if (result.equals("")) {
-			return "<UNKNOWN>";
-		}
+    private static int getFileCodesPrefixIndex(String[] arr) {
+        String s;
+        for (int i = 0; i < arr.length; i++) {
+            s = arr[i].trim();
+            if (s.equals("at") || s.equals("from")) {
+                return i;
+            }
+        }
+        return -1;
+    }
 
-		// result = CommonUtil.replace(result, envJAVA_HOME, "$JAVA_HOME");
-		// result = CommonUtil.replace(result, envHOME, "$HOME");
+    private static String refineMethodCodes(String desc) {
+        return desc;
+    }
 
-		p = result.lastIndexOf("/src/");
-		if (p == -1) {
-			result = "<EXTERNAL LIBRARY>";
-		} else {
-			result = result.substring(p + 1);
-		}
+    private static String refineFileCodes(String desc) {
+        String result;
+        int p = desc.lastIndexOf(":");
+        if (p == -1) {
+            result = desc;
+        } else {
+            result = desc.substring(0, p);
+        }
 
-		return result;
-	}
+        result = result.trim();
+        if (result.equals("")) {
+            return "<UNKNOWN>";
+        }
 
-	public String getProcessName() {
-		return this.processName;
-	}
+        // result = CommonUtil.replace(result, envJAVA_HOME, "$JAVA_HOME");
+        // result = CommonUtil.replace(result, envHOME, "$HOME");
 
-	public String getDetailStack() {
-		return this.detailStack;
-	}
+        p = result.lastIndexOf("/src/");
+        if (p == -1) {
+            result = "<EXTERNAL LIBRARY>";
+        } else {
+            result = result.substring(p + 1);
+        }
 
-	public String getDigestStack() {
-		return this.digestStack;
-	}
+        return result;
+    }
+
+    public String getProcessName() {
+        return this.processName;
+    }
+
+    public String getDetailStack() {
+        return this.detailStack;
+    }
+
+    public String getDigestStack() {
+        return this.digestStack;
+    }
 }

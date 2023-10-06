@@ -1,31 +1,31 @@
 /**
  * Copyright (c) 2016, Search Solution Corporation. All rights reserved.
- * 
- * Redistribution and use in source and binary forms, with or without 
- * modification, are permitted provided that the following conditions are met:
- * 
- *   * Redistributions of source code must retain the above copyright notice, 
- *     this list of conditions and the following disclaimer.
- * 
- *   * Redistributions in binary form must reproduce the above copyright 
- *     notice, this list of conditions and the following disclaimer in 
- *     the documentation and/or other materials provided with the distribution.
- * 
- *   * Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products 
- *     derived from this software without specific prior written permission.
- * 
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, 
- * INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE 
- * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, 
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR 
- * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
- * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE 
- * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
+ *
+ * <p>Redistribution and use in source and binary forms, with or without modification, are permitted
+ * provided that the following conditions are met:
+ *
+ * <p>* Redistributions of source code must retain the above copyright notice, this list of
+ * conditions and the following disclaimer.
+ *
+ * <p>* Redistributions in binary form must reproduce the above copyright notice, this list of
+ * conditions and the following disclaimer in the documentation and/or other materials provided with
+ * the distribution.
+ *
+ * <p>* Neither the name of the copyright holder nor the names of its contributors may be used to
+ * endorse or promote products derived from this software without specific prior written permission.
+ *
+ * <p>THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR
+ * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
+ * FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY
+ * WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 package com.navercorp.cubridqa.common;
 
 import java.util.ArrayList;
-
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.HelpFormatter;
@@ -34,315 +34,341 @@ import org.apache.commons.cli.PosixParser;
 
 public class RunRemoteScript {
 
-	private static boolean enableDebug = CommonUtils.convertBoolean(System.getenv(ConfigParameterConstants.CTP_DEBUG_ENABLE), false);
+    private static boolean enableDebug =
+            CommonUtils.convertBoolean(
+                    System.getenv(ConfigParameterConstants.CTP_DEBUG_ENABLE), false);
 
-	public static void main(String[] args) throws Exception {
-		run(args, false);
-	}
-	
-	public static void run(String[] args, boolean skipProxy) throws Exception {
-		run(args, true, skipProxy);
-	}
-	
-	public static String run(String[] args, boolean showInConsole, boolean skipProxy) throws Exception {
-		Console console = new Console(showInConsole);
-		run(args, console, skipProxy);
-		return console.getContent();
-	}
-	
-	private static void run(String[] args, Console console, boolean skipProxy) throws Exception {
-		Options options = new Options();
-		options.addOption("host", true, "Remote ssh host");
-		options.addOption("port", true, "Remote ssh port");
-		options.addOption("user", true, "Remote ssh user");
-		options.addOption("password", true, "Remote ssh password");
-		options.addOption("initfile", true, "file which contains common functions");
-		options.addOption("c", true, "Script commands to run");
-		options.addOption("f", true, "Script file to run");
-		options.addOption("tillcontains", true, "execute repeatedly till result contains some string");
-		options.addOption("tillequals", true, "execute repeatedly till result equals some string");
-		options.addOption("maxattempts", true, "results equal some string. default: 200");
-		options.addOption("interval", true, "second(s) that refresh interval. default: 1");
+    public static void main(String[] args) throws Exception {
+        run(args, false);
+    }
 
-		options.addOption(null, "proxy-host", true, "Proxy ssh host");
-		options.addOption(null, "proxy-port", true, "Proxy ssh port");
-		options.addOption(null, "proxy-user", true, "Proxy ssh user");
-		options.addOption(null, "proxy-password", true, "Proxy ssh password");
-		options.addOption(null, "proxy-first", false, "Proxy first");
+    public static void run(String[] args, boolean skipProxy) throws Exception {
+        run(args, true, skipProxy);
+    }
 
-		options.addOption("help", false, "List help");
+    public static String run(String[] args, boolean showInConsole, boolean skipProxy)
+            throws Exception {
+        Console console = new Console(showInConsole);
+        run(args, console, skipProxy);
+        return console.getContent();
+    }
 
-		CommandLineParser parser = null;
-		CommandLine cmd = null;
+    private static void run(String[] args, Console console, boolean skipProxy) throws Exception {
+        Options options = new Options();
+        options.addOption("host", true, "Remote ssh host");
+        options.addOption("port", true, "Remote ssh port");
+        options.addOption("user", true, "Remote ssh user");
+        options.addOption("password", true, "Remote ssh password");
+        options.addOption("initfile", true, "file which contains common functions");
+        options.addOption("c", true, "Script commands to run");
+        options.addOption("f", true, "Script file to run");
+        options.addOption(
+                "tillcontains", true, "execute repeatedly till result contains some string");
+        options.addOption("tillequals", true, "execute repeatedly till result equals some string");
+        options.addOption("maxattempts", true, "results equal some string. default: 200");
+        options.addOption("interval", true, "second(s) that refresh interval. default: 1");
 
-		try {
-			parser = new PosixParser();
-			cmd = parser.parse(options, args);
-		} catch (Exception e) {
-			showHelp(e.getMessage(), options, console);
-			return;
-		}
+        options.addOption(null, "proxy-host", true, "Proxy ssh host");
+        options.addOption(null, "proxy-port", true, "Proxy ssh port");
+        options.addOption(null, "proxy-user", true, "Proxy ssh user");
+        options.addOption(null, "proxy-password", true, "Proxy ssh password");
+        options.addOption(null, "proxy-first", false, "Proxy first");
 
-		if (args.length == 0 || cmd.hasOption("help")) {
-			showHelp(null, options, console);
-			return;
-		}
+        options.addOption("help", false, "List help");
 
-		if (!cmd.hasOption("host") || !cmd.hasOption("user") || !cmd.hasOption("password")) {
-			showHelp("Please input remote <host>, <port>, <user>, <password>.", options, console);
-			return;
-		}
+        CommandLineParser parser = null;
+        CommandLine cmd = null;
 
-		if (!cmd.hasOption("f") && !cmd.hasOption("c")) {
-			showHelp("Please input scripts to run.", options, console);
-			return;
-		}
+        try {
+            parser = new PosixParser();
+            cmd = parser.parse(options, args);
+        } catch (Exception e) {
+            showHelp(e.getMessage(), options, console);
+            return;
+        }
 
-		String sshHost = cmd.getOptionValue("host");
-		String sshPort = cmd.getOptionValue("port");
-		if (sshPort == null || sshPort.trim().equals(""))
-			sshPort = "22";
+        if (args.length == 0 || cmd.hasOption("help")) {
+            showHelp(null, options, console);
+            return;
+        }
 
-		String sshUser = cmd.getOptionValue("user");
-		String sshPassword = cmd.getOptionValue("password");
+        if (!cmd.hasOption("host") || !cmd.hasOption("user") || !cmd.hasOption("password")) {
+            showHelp("Please input remote <host>, <port>, <user>, <password>.", options, console);
+            return;
+        }
 
-		String proxyHost = cmd.getOptionValue("proxy-host");
-		if (CommonUtils.isEmpty(proxyHost)) {
-			proxyHost = System.getenv(ConfigParameterConstants.CTP_PROXY_HOST);
-		}
-		String proxyPort = cmd.getOptionValue("proxy-port");
-		if (CommonUtils.isEmpty(proxyPort)) {
-			proxyPort = System.getenv(ConfigParameterConstants.CTP_PROXY_PORT);
-			if (CommonUtils.isEmpty(proxyPort)) {
-				proxyPort = "22";
-			}
-		}
-		String proxyUser = cmd.getOptionValue("proxy-user");
-		if (CommonUtils.isEmpty(proxyUser)) {
-			proxyUser = System.getenv(ConfigParameterConstants.CTP_PROXY_USER);
-			if (CommonUtils.isEmpty(proxyUser)) {
-				proxyUser = sshUser;
-			}
-		}
-		String proxyPwd = cmd.getOptionValue("proxy-password");
-		if (CommonUtils.isEmpty(proxyPwd)) {
-			proxyPwd = System.getenv(ConfigParameterConstants.CTP_PROXY_PASSWORD);
-			if (CommonUtils.isEmpty(proxyPwd)) {
-				proxyPwd = sshPassword;
-			}
-		}
-		boolean hasProxy = skipProxy == false && proxyHost != null && proxyHost.trim().equals("") == false;
-		if (hasProxy) {
-			if (cmd.hasOption("initfile") || cmd.hasOption("f")) {
-				hasProxy = false;
-			}
-		}
-		boolean proxyPriority = cmd.hasOption("proxy-first") || CommonUtils.convertBoolean(System.getenv(ConfigParameterConstants.CTP_PROXY_PRIORITY), false);
+        if (!cmd.hasOption("f") && !cmd.hasOption("c")) {
+            showHelp("Please input scripts to run.", options, console);
+            return;
+        }
 
-		if ((hasProxy && proxyPriority) || (hasProxy && mayConnectDirectly(sshHost, sshPort, sshUser, sshPassword, console) == false)) {
+        String sshHost = cmd.getOptionValue("host");
+        String sshPort = cmd.getOptionValue("port");
+        if (sshPort == null || sshPort.trim().equals("")) sshPort = "22";
 
-			if (enableDebug)
-				console.println("PROXY: local -> " + proxyUser + "@" + proxyHost + " -> " + sshUser + "@" + sshHost);
+        String sshUser = cmd.getOptionValue("user");
+        String sshPassword = cmd.getOptionValue("password");
 
-			String proxyCmd = "run_remote_script -host " + sshHost + " -port " + sshPort + " -user " + sshUser + " -password " + sshPassword;
-			if (cmd.hasOption("initfile")) {
-				proxyCmd += " -initfile '" + cmd.getOptionValue("initfile") + "' ";
-			}
-			if (cmd.hasOption("c")) {
-				proxyCmd += " -c '" + cmd.getOptionValue("c") + "' ";
-			}
-			if (cmd.hasOption("f")) {
-				proxyCmd += " -f '" + cmd.getOptionValue("f") + "' ";
-			}
-			if (cmd.hasOption("tillcontains")) {
-				proxyCmd += " -tillcontains '" + cmd.getOptionValue("tillcontains") + "' ";
-			}
-			if (cmd.hasOption("tillequals")) {
-				proxyCmd += " -tillequals '" + cmd.getOptionValue("tillequals") + "' ";
-			}
-			if (cmd.hasOption("maxattempts")) {
-				proxyCmd += " -maxattempts '" + cmd.getOptionValue("maxattempts") + "' ";
-			}
-			if (cmd.hasOption("interval")) {
-				proxyCmd += " -interval '" + cmd.getOptionValue("interval") + "' ";
-			}
+        String proxyHost = cmd.getOptionValue("proxy-host");
+        if (CommonUtils.isEmpty(proxyHost)) {
+            proxyHost = System.getenv(ConfigParameterConstants.CTP_PROXY_HOST);
+        }
+        String proxyPort = cmd.getOptionValue("proxy-port");
+        if (CommonUtils.isEmpty(proxyPort)) {
+            proxyPort = System.getenv(ConfigParameterConstants.CTP_PROXY_PORT);
+            if (CommonUtils.isEmpty(proxyPort)) {
+                proxyPort = "22";
+            }
+        }
+        String proxyUser = cmd.getOptionValue("proxy-user");
+        if (CommonUtils.isEmpty(proxyUser)) {
+            proxyUser = System.getenv(ConfigParameterConstants.CTP_PROXY_USER);
+            if (CommonUtils.isEmpty(proxyUser)) {
+                proxyUser = sshUser;
+            }
+        }
+        String proxyPwd = cmd.getOptionValue("proxy-password");
+        if (CommonUtils.isEmpty(proxyPwd)) {
+            proxyPwd = System.getenv(ConfigParameterConstants.CTP_PROXY_PASSWORD);
+            if (CommonUtils.isEmpty(proxyPwd)) {
+                proxyPwd = sshPassword;
+            }
+        }
+        boolean hasProxy =
+                skipProxy == false && proxyHost != null && proxyHost.trim().equals("") == false;
+        if (hasProxy) {
+            if (cmd.hasOption("initfile") || cmd.hasOption("f")) {
+                hasProxy = false;
+            }
+        }
+        boolean proxyPriority =
+                cmd.hasOption("proxy-first")
+                        || CommonUtils.convertBoolean(
+                                System.getenv(ConfigParameterConstants.CTP_PROXY_PRIORITY), false);
 
-			String[] remoteArgs = new String[10];
-			int i = 0;
-			remoteArgs[i++] = "-host";
-			remoteArgs[i++] = proxyHost;
-			remoteArgs[i++] = "-port";
-			remoteArgs[i++] = proxyPort;
-			remoteArgs[i++] = "-user";
-			remoteArgs[i++] = proxyUser;
-			remoteArgs[i++] = "-password";
-			remoteArgs[i++] = proxyPwd;
-			remoteArgs[i++] = "-c";
-			remoteArgs[i++] = proxyCmd;
+        if ((hasProxy && proxyPriority)
+                || (hasProxy
+                        && mayConnectDirectly(sshHost, sshPort, sshUser, sshPassword, console)
+                                == false)) {
 
-			RunRemoteScript.run(remoteArgs, console, true);
-			return;
-		}
+            if (enableDebug)
+                console.println(
+                        "PROXY: local -> "
+                                + proxyUser
+                                + "@"
+                                + proxyHost
+                                + " -> "
+                                + sshUser
+                                + "@"
+                                + sshHost);
 
-		String scriptCmd = cmd.getOptionValue("c");
-		String scriptFile = null;
-		if (cmd.hasOption("f")) {
-			scriptFile = cmd.getOptionValue("f");
-		}
+            String proxyCmd =
+                    "run_remote_script -host "
+                            + sshHost
+                            + " -port "
+                            + sshPort
+                            + " -user "
+                            + sshUser
+                            + " -password "
+                            + sshPassword;
+            if (cmd.hasOption("initfile")) {
+                proxyCmd += " -initfile '" + cmd.getOptionValue("initfile") + "' ";
+            }
+            if (cmd.hasOption("c")) {
+                proxyCmd += " -c '" + cmd.getOptionValue("c") + "' ";
+            }
+            if (cmd.hasOption("f")) {
+                proxyCmd += " -f '" + cmd.getOptionValue("f") + "' ";
+            }
+            if (cmd.hasOption("tillcontains")) {
+                proxyCmd += " -tillcontains '" + cmd.getOptionValue("tillcontains") + "' ";
+            }
+            if (cmd.hasOption("tillequals")) {
+                proxyCmd += " -tillequals '" + cmd.getOptionValue("tillequals") + "' ";
+            }
+            if (cmd.hasOption("maxattempts")) {
+                proxyCmd += " -maxattempts '" + cmd.getOptionValue("maxattempts") + "' ";
+            }
+            if (cmd.hasOption("interval")) {
+                proxyCmd += " -interval '" + cmd.getOptionValue("interval") + "' ";
+            }
 
-		String initFile = null;
-		if (cmd.hasOption("initfile")) {
-			initFile = cmd.getOptionValue("initfile");
-		}
+            String[] remoteArgs = new String[10];
+            int i = 0;
+            remoteArgs[i++] = "-host";
+            remoteArgs[i++] = proxyHost;
+            remoteArgs[i++] = "-port";
+            remoteArgs[i++] = proxyPort;
+            remoteArgs[i++] = "-user";
+            remoteArgs[i++] = proxyUser;
+            remoteArgs[i++] = "-password";
+            remoteArgs[i++] = proxyPwd;
+            remoteArgs[i++] = "-c";
+            remoteArgs[i++] = proxyCmd;
 
-		int maxattempts = 1;
-		String tillcontains = null;
-		if (cmd.hasOption("tillcontains")) {
-			tillcontains = cmd.getOptionValue("tillcontains");
-			if (tillcontains != null) {
-				tillcontains = tillcontains.trim();
-				if (tillcontains.equals("")) {
-					tillcontains = null;
-				} else {
-					maxattempts = 200;
-				}
-			}
-		}
+            RunRemoteScript.run(remoteArgs, console, true);
+            return;
+        }
 
-		String tillequals = null;
-		if (cmd.hasOption("tillequals")) {
-			tillequals = cmd.getOptionValue("tillequals");
-			if (tillequals != null) {
-				tillequals = tillequals.trim();
-				if (tillequals.equals("")) {
-					tillequals = null;
-				} else {
-					maxattempts = 200;
-				}
-			}
-		}
+        String scriptCmd = cmd.getOptionValue("c");
+        String scriptFile = null;
+        if (cmd.hasOption("f")) {
+            scriptFile = cmd.getOptionValue("f");
+        }
 
-		if (cmd.hasOption("maxattempts")) {
-			String s = cmd.getOptionValue("maxattempts");
-			maxattempts = Integer.parseInt(s);
-		}
+        String initFile = null;
+        if (cmd.hasOption("initfile")) {
+            initFile = cmd.getOptionValue("initfile");
+        }
 
-		if (tillcontains == null && tillequals == null) {
-			maxattempts = 1;
-		}
+        int maxattempts = 1;
+        String tillcontains = null;
+        if (cmd.hasOption("tillcontains")) {
+            tillcontains = cmd.getOptionValue("tillcontains");
+            if (tillcontains != null) {
+                tillcontains = tillcontains.trim();
+                if (tillcontains.equals("")) {
+                    tillcontains = null;
+                } else {
+                    maxattempts = 200;
+                }
+            }
+        }
 
-		int interval = 1;
-		if (cmd.hasOption("interval")) {
-			String s = cmd.getOptionValue("interval");
-			interval = Integer.parseInt(s);
-		}
+        String tillequals = null;
+        if (cmd.hasOption("tillequals")) {
+            tillequals = cmd.getOptionValue("tillequals");
+            if (tillequals != null) {
+                tillequals = tillequals.trim();
+                if (tillequals.equals("")) {
+                    tillequals = null;
+                } else {
+                    maxattempts = 200;
+                }
+            }
+        }
 
-		SSHConnect ssh = null;
-		ShellInput input = null;
-		ArrayList<String> list;
-		String result = null;
-		try {
-			ssh = new SSHConnect(sshHost, Integer.parseInt(sshPort), sshUser, sshPassword, enableDebug);
-			input = new ShellInput("");
+        if (cmd.hasOption("maxattempts")) {
+            String s = cmd.getOptionValue("maxattempts");
+            maxattempts = Integer.parseInt(s);
+        }
 
-			if (initFile != null && initFile.trim().equals("") == false) {
-				list = CommonUtils.getLineList(initFile);
-				if (list != null) {
-					for (String s1 : list) {
-						input.addCommand(s1);
-					}
-				}
-			}
+        if (tillcontains == null && tillequals == null) {
+            maxattempts = 1;
+        }
 
-			if (scriptCmd != null) {
-				input.addCommand(CommonUtils.replace(scriptCmd, "\\n", "\n"));
-			}
+        int interval = 1;
+        if (cmd.hasOption("interval")) {
+            String s = cmd.getOptionValue("interval");
+            interval = Integer.parseInt(s);
+        }
 
-			list = CommonUtils.getLineList(scriptFile);
-			if (list != null) {
-				for (String s1 : list) {
-					input.addCommand(s1);
-				}
-			}
+        SSHConnect ssh = null;
+        ShellInput input = null;
+        ArrayList<String> list;
+        String result = null;
+        try {
+            ssh =
+                    new SSHConnect(
+                            sshHost, Integer.parseInt(sshPort), sshUser, sshPassword, enableDebug);
+            input = new ShellInput("");
 
-			for (int i = 0; i < maxattempts; i++) {
-				result = ssh.execute(input);
-				result = result.trim();
-				if (tillcontains != null) {
-					if (result.indexOf(tillcontains) != -1) {
-						break;
-					} else {
-						Thread.sleep(interval * 1000);
-						continue;
-					}
-				} else if (tillequals != null) {
-					if (result.equals(tillequals)) {
-						break;
-					} else {
-						Thread.sleep(interval * 1000);
-						continue;
-					}
-				}
-			}
-			console.println(result);
-		} catch (Exception e) {
-			console.println("ERROR:" + e.getMessage());
-		} finally {
-			if (ssh != null)
-				ssh.close();
-		}
-	}
+            if (initFile != null && initFile.trim().equals("") == false) {
+                list = CommonUtils.getLineList(initFile);
+                if (list != null) {
+                    for (String s1 : list) {
+                        input.addCommand(s1);
+                    }
+                }
+            }
 
-	private static boolean mayConnectDirectly(String sshHost, String sshPort, String sshUser, String sshPassword, Console console) {
-		SSHConnect ssh = null;
+            if (scriptCmd != null) {
+                input.addCommand(CommonUtils.replace(scriptCmd, "\\n", "\n"));
+            }
 
-		try {
-			ssh = new SSHConnect(sshHost, Integer.parseInt(sshPort), sshUser, sshPassword, enableDebug);
+            list = CommonUtils.getLineList(scriptFile);
+            if (list != null) {
+                for (String s1 : list) {
+                    input.addCommand(s1);
+                }
+            }
 
-			String hello = ssh.execute(new ShellInput("echo OOO${NOT_EXIST}KKK"));
-			if (hello.trim().equals("OOOKKK")) {
-				if (enableDebug)
-					console.println("SSH CONNECTED + " + sshHost);
-				return true;
-			}
-		} catch (Exception e) {
-		} finally {
-			if (ssh != null)
-				ssh.close();
-		}
-		return false;
-	}
+            for (int i = 0; i < maxattempts; i++) {
+                result = ssh.execute(input);
+                result = result.trim();
+                if (tillcontains != null) {
+                    if (result.indexOf(tillcontains) != -1) {
+                        break;
+                    } else {
+                        Thread.sleep(interval * 1000);
+                        continue;
+                    }
+                } else if (tillequals != null) {
+                    if (result.equals(tillequals)) {
+                        break;
+                    } else {
+                        Thread.sleep(interval * 1000);
+                        continue;
+                    }
+                }
+            }
+            console.println(result);
+        } catch (Exception e) {
+            console.println("ERROR:" + e.getMessage());
+        } finally {
+            if (ssh != null) ssh.close();
+        }
+    }
 
-	private static void showHelp(String error, Options options, Console console) {
-		if (error != null)
-			console.println("Error: " + error);
-		HelpFormatter formatter = new HelpFormatter();
-		formatter.printHelp("run_remote_script: to execute scripts on remote host", options);
-		console.println("\n");
-	}
+    private static boolean mayConnectDirectly(
+            String sshHost, String sshPort, String sshUser, String sshPassword, Console console) {
+        SSHConnect ssh = null;
+
+        try {
+            ssh =
+                    new SSHConnect(
+                            sshHost, Integer.parseInt(sshPort), sshUser, sshPassword, enableDebug);
+
+            String hello = ssh.execute(new ShellInput("echo OOO${NOT_EXIST}KKK"));
+            if (hello.trim().equals("OOOKKK")) {
+                if (enableDebug) console.println("SSH CONNECTED + " + sshHost);
+                return true;
+            }
+        } catch (Exception e) {
+        } finally {
+            if (ssh != null) ssh.close();
+        }
+        return false;
+    }
+
+    private static void showHelp(String error, Options options, Console console) {
+        if (error != null) console.println("Error: " + error);
+        HelpFormatter formatter = new HelpFormatter();
+        formatter.printHelp("run_remote_script: to execute scripts on remote host", options);
+        console.println("\n");
+    }
 }
 
 class Console {
-	StringBuilder out = new StringBuilder();
+    StringBuilder out = new StringBuilder();
 
-	boolean showInConsole = true;
+    boolean showInConsole = true;
 
-	public Console() {
-	}
+    public Console() {}
 
-	public Console(boolean showInConsole) {
-		this.showInConsole = showInConsole;
-	}
+    public Console(boolean showInConsole) {
+        this.showInConsole = showInConsole;
+    }
 
-	public void println(String info) {
-		if (showInConsole) {
-			System.out.println(info);
-		} else {
-			out.append(info).append("\n");
-		}
-	}
+    public void println(String info) {
+        if (showInConsole) {
+            System.out.println(info);
+        } else {
+            out.append(info).append("\n");
+        }
+    }
 
-	public String getContent() {
-		return out.toString();
-	}
+    public String getContent() {
+        return out.toString();
+    }
 }
