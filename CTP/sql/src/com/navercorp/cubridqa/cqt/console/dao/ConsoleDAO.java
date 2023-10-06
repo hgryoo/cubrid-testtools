@@ -117,6 +117,7 @@ public class ConsoleDAO extends Executor {
             this.dao = dao;
         }
 
+        @Override
         public void run() {
             while (!dao.isEndFlag()) {
                 List<String> connList = dao.getConnList();
@@ -168,6 +169,7 @@ public class ConsoleDAO extends Executor {
      * @param
      * @return void
      */
+    @Override
     public void init() {
         try {
             // SystemModel systemModel = (SystemModel) XstreamHelper
@@ -296,7 +298,6 @@ public class ConsoleDAO extends Executor {
     public void execute(Connection conn, Sql sql, boolean isPrintQueryPlan) {
         this.onMessage("sql.script: " + sql.getScript());
         this.onMessage("sql.getType: " + sql.getType());
-
         if (sql.getType() == Sql.TYPE_CALL) {
             executeCall(conn, sql);
         } else if (sql.getType() == Sql.TYPE_PRE_STMT) {

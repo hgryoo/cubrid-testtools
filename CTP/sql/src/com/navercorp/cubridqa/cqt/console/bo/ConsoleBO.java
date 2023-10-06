@@ -735,7 +735,6 @@ public class ConsoleBO extends Executor {
 
         CommonFileUtile.writeFile(headerText.toString() + bodyText.toString(), coreFile);
     }
-
     /**
      * save the answer file .
      *
@@ -1479,7 +1478,6 @@ public class ConsoleBO extends Executor {
                                     new FileInputStream(new File(sqlFile)), test.getCodeset()));
             String line = reader.readLine();
             int lineCount = 1;
-
             StringBuilder ret = new StringBuilder();
             List<SqlParam> paramList = null;
             String connId = "";
