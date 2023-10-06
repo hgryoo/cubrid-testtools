@@ -37,7 +37,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import org.dom4j.io.SAXReader;
-import org.w3c.dom.Document;
+import org.dom4j.Document;
+import org.dom4j.Element;
 
 public class PropertiesUtil {
 
