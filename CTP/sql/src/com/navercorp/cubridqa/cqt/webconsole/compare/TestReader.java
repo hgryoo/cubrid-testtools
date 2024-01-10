@@ -60,6 +60,7 @@ public class TestReader {
             if (builder.length() > 0) {
                 builder.append("\n");
             }
+
             if (sqls.get(idx).getParamLine () != null) {
                 builder.append(sqls.get(idx).getParamLine ());
                 builder.append("\n");
