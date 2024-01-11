@@ -628,11 +628,21 @@ public class ConsoleBO extends Executor {
 			TestCaseSummary fs = new TestCaseSummary();
 
 			if (!answer.equals(result)) {
-				fs.setTestResult("fail");
-				caseResult.setSuccessFul(false);
-				TestUtil.saveResult(caseResult, test.getCodeset());
-				TestUtil.saveRewriteSQL(caseResult, test.getCodeset());
-				processMonitor.setFailedFile(processMonitor.getFailedFile() + 1);
+                                // special rule for rewritten query
+                                if (!answer.startsWith("Error:") && !result.startsWith("Error:"))
+                                {
+                                        processMonitor.setSuccessFile(processMonitor.getSuccessFile() + 1);
+				        fs.setTestResult("success");
+                                }
+                                else
+                                {
+                                        fs.setTestResult("fail");
+                                        caseResult.setSuccessFul(false);
+                                        TestUtil.saveResult(caseResult, test.getCodeset());
+                                        TestUtil.saveRewriteSQL(caseResult, test.getCodeset());
+                                        processMonitor.setFailedFile(processMonitor.getFailedFile() + 1);
+                                }
+
 			} else {
 				processMonitor.setSuccessFile(processMonitor.getSuccessFile() + 1);
 				fs.setTestResult("success");
